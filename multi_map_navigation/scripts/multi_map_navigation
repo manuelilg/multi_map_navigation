@@ -1,12 +1,14 @@
 #!/usr/bin/python
 
-import roslib
-roslib.load_manifest('multi_map_navigation')
+#import roslib
+#roslib.load_manifest('multi_map_navigation')
 import rospy
 import actionlib
 import sys, os
-from map_store.msg import *
-from map_store.srv import *
+#from map_store.msg import *
+#from map_store.srv import *
+from multi_level_map_msgs.msg import *
+from multi_level_map_msgs.srv import *
 from nav_msgs.msg import *
 from nav_msgs.srv import *
 from geometry_msgs.msg import *
@@ -20,6 +22,8 @@ import math
 import tf
 import random
 
+import trace
+
 def calc_distance(l1, l2):
     dx = l1[0] - l2[0]
     dy = l1[1] - l2[1]
@@ -31,17 +35,24 @@ class MultiMapNavigationDataManager(object):
         self.listener = tf.TransformListener(True, rospy.Duration(100))
         rospy.loginfo("Wait for list_maps")
         #rospy.wait_for_service("map_store/list_maps")
-        rospy.wait_for_service("/list_maps")
-        self.list_maps_proxy = rospy.ServiceProxy("/list_maps", ListMaps)
-        rospy.loginfo("Wait for publish_map")
-        rospy.wait_for_service('map_store/publish_map')
-        self.select_map_proxy = rospy.ServiceProxy("map_store/publish_map", PublishMap)
-        rospy.loginfo("Wait for dynamic_map")
-        rospy.wait_for_service('map_store/dynamic_map')
-        self.dynamic_map_proxy = rospy.ServiceProxy("map_store/dynamic_map", GetMap)
+        #rospy.wait_for_service("/list_maps")
+        #self.list_maps_proxy = rospy.ServiceProxy("/list_maps", ListMaps)
+        rospy.wait_for_message("map_metadata", MultiLevelMapData)
 
-        self.list_maps_service = rospy.Service('~list_maps', ListMaps, self.list_maps)
-        self.visualization_publisher = rospy.Publisher('visualization_marker', Marker)
+        rospy.loginfo("Wait for publish_map")
+        #rospy.wait_for_service('map_store/publish_map')
+        #self.select_map_proxy = rospy.ServiceProxy("map_store/publish_map", PublishMap)
+        rospy.wait_for_service("level_mux/change_current_level")
+        self.select_map_proxy = rospy.ServiceProxy("level_mux/change_current_level", ChangeCurrentLevel)
+
+        rospy.loginfo("Wait for dynamic_map")
+        #rospy.wait_for_service('map_store/dynamic_map')
+        #self.dynamic_map_proxy = rospy.ServiceProxy("map_store/dynamic_map", GetMap)
+        rospy.wait_for_service('level_mux/static_map')
+        self.dynamic_map_proxy = rospy.ServiceProxy("level_mux/static_map", GetMap)
+
+        #self.list_maps_service = rospy.Service('~list_maps', ListMaps, self.list_maps) not used!!
+        self.visualization_publisher = rospy.Publisher('visualization_marker', Marker, queue_size=10)
 
         transitions = ["door_blast", "elevator_blast", "door_drag"]
         if rospy.has_param('~transition_types'):
@@ -63,39 +74,38 @@ class MultiMapNavigationDataManager(object):
         self.create_map_db()
 
         if rospy.has_param('~definition_file'):
+            # TODO use map_metadata (multi_level_map_msgs/MultiLevelMapData)
             if (not self.loadyaml(rospy.get_param("~definition_file"))):
                 return
         else:
             rospy.logerr("You must specify a definition_file")
             return
         
-        self.map_publisher = rospy.Publisher("map", OccupancyGrid, latch=True)
-        self.select_map(self.start_map)
-        self.dynamic_map_service = rospy.Service('dynamic_map', GetMap, self.dynamic_map)
-        self.static_map_service = rospy.Service('static_map', GetMap, self.dynamic_map)
-        self.seconday_map_service = rospy.Service('secondary_map', GetMap, self.secondary_map)
+        # self.map_publisher = rospy.Publisher("map", OccupancyGrid, latch=True, queue_size=10)
+        # self.select_map(self.start_map)
+        # self.dynamic_map_service = rospy.Service('dynamic_map', GetMap, self.dynamic_map)
+        # self.static_map_service = rospy.Service('static_map', GetMap, self.dynamic_map)
+        # self.seconday_map_service = rospy.Service('secondary_map', GetMap, self.secondary_map)
 
         rospy.loginfo("Waiting for position")
         self.get_robot_position()
        
         self.ready = True
 
-        self.secondary_map_publisher = rospy.Publisher("secondary_map", OccupancyGrid, latch=True)
-        self.set_map_service = rospy.Service('~set_map', SetMap, self.set_map)
-        self.set_secondary_map_service = rospy.Service('~set_secondary_map', SetMap, self.set_secondary_map)
+        # self.secondary_map_publisher = rospy.Publisher("secondary_map", OccupancyGrid, latch=True, queue_size=10)
+        # self.set_map_service = rospy.Service('~set_map', SetMap, self.set_map)
+        # self.set_secondary_map_service = rospy.Service('~set_secondary_map', SetMap, self.set_secondary_map)
         rospy.loginfo("Starting")
 
     def get_robot_position(self):
         while not rospy.is_shutdown():
             try:
-                #self.listener.waitForTransform("/map", "/base_link", rospy.Time(), rospy.Duration(100))
-                #(trans,rot) = self.listener.lookupTransform('/map', '/base_link', rospy.Time())
-                rospy.loginfo("ALIALI1")
+                self.listener.waitForTransform("/map", "/base_link", rospy.Time(), rospy.Duration(100))
+                (trans,rot) = self.listener.lookupTransform('/map', '/base_link', rospy.Time())
                 #self.listener.waitForTransform("/map", "/base_footprint", rospy.Time(), rospy.Duration(100))
                 #(trans,rot) = self.listener.lookupTransform('/map', '/base_footprint', rospy.Time())
-                self.listener.waitForTransform("/map", "/move_base/footprint", rospy.Time(), rospy.Duration(100))
-                (trans,rot) = self.listener.lookupTransform('/map', '/move_base/footprint', rospy.Time())
-                rospy.loginfo("ALIALI2")
+                #self.listener.waitForTransform("/map", "/move_base/footprint", rospy.Time(), rospy.Duration(100))
+                #(trans,rot) = self.listener.lookupTransform('/map', '/move_base/footprint', rospy.Time())
                 return [trans[0], trans[1]]
             except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException) as ex:
                 rospy.logwarn("Failed to get robot transform")
@@ -105,10 +115,10 @@ class MultiMapNavigationDataManager(object):
     def get_robot_rotation(self):
         while not rospy.is_shutdown():
             try:
-                #self.listener.waitForTransform("/map", "/base_link", rospy.Time(), rospy.Duration(100))
-                #(trans,rot) = self.listener.lookupTransform('/map', '/base_link', rospy.Time())
-                self.listener.waitForTransform("/map", "/base_footprint", rospy.Time(), rospy.Duration(100))
-                (trans,rot) = self.listener.lookupTransform('/map', '/base_footprint', rospy.Time())
+                self.listener.waitForTransform("/map", "/base_link", rospy.Time(), rospy.Duration(100))
+                (trans,rot) = self.listener.lookupTransform('/map', '/base_link', rospy.Time())
+                #self.listener.waitForTransform("/map", "/base_footprint", rospy.Time(), rospy.Duration(100))
+                #(trans,rot) = self.listener.lookupTransform('/map', '/base_footprint', rospy.Time())
                 return rot
             except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException) as ex:
                 rospy.logwarn("Failed to get robot transform")
@@ -305,12 +315,16 @@ class MultiMapNavigationDataManager(object):
 
     def create_map_db(self):
         #Create a database of all maps
-        map_list = self.list_maps_proxy()
+        # map_list = self.list_maps_proxy()
+        # self.map_db = {}
+        # for i in map_list.map_list:
+        #     if (i.name != ""):
+        #         self.map_db[i.name] = i.map_id
+        map_metadata = rospy.wait_for_message("map_metadata", MultiLevelMapData)
         self.map_db = {}
-        for i in map_list.map_list:
-            if (i.name != ""):
-                self.map_db[i.name] = i.map_id
-    
+        for level in map_metadata.levels:
+            if level.level_id != "":
+                self.map_db[level.level_id] = level.level_id
 
 
 
@@ -325,7 +339,7 @@ class MultiMapNavigationNavigator():
         self.move_base.wait_for_server()
         self.action_server = actionlib.SimpleActionServer("multi_map_navigation/move", MultiMapNavigationAction,
                                                           execute_cb=self.execute_cb, auto_start=False)
-        self.pose_pub = rospy.Publisher("initialpose", PoseWithCovarianceStamped)
+        self.pose_pub = rospy.Publisher("initialpose", PoseWithCovarianceStamped, queue_size=10)
         while not self.manager.ready:
             rospy.sleep(1.0)
         self.action_server.start()

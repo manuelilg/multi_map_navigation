@@ -1,0 +1,22 @@
+start_map: level1
+maps:
+     - name: level1
+       north_angle: 0.0
+     - name: level2
+       north_angle: 0.0
+
+wormholes:
+     - name: elevator1 # for Gazebo simulation, this should be same as the spawn model name
+       type: elevator_blast
+       radius: 0.2
+       locations:
+            - map: level1 
+              position: [0.0, 0.0] # dump coordinates
+              waiting_point: [2.5 0.0 3.147] # x, y, yaw
+              floor: 0 
+              height: 0.0 # not used, but might be useful in the future to calculate the cost of using the elevator
+            - map: level2
+              position: [0.0, 0.0]
+              waiting_point: [2.5 0.0 3.147]
+              floor: 1
+              height: 2.0

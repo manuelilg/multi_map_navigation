@@ -4,13 +4,54 @@ project(multi_map_navigation)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS genmsg actionlib_msgs roscpp rospy std_msgs geometry_msgs)
+find_package(catkin REQUIRED COMPONENTS genmsg actionlib_msgs roscpp rospy std_msgs geometry_msgs rviz map_server)
 #add_action_files(DIRECTORY action FILES DoDishes.action)
 add_action_files(DIRECTORY action FILES  MultiMapNavigationTransition.action MultiMapNavigation.action)
 add_service_files(DIRECTORY srv FILES SetMap.srv)
 generate_messages(DEPENDENCIES actionlib_msgs geometry_msgs)
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
+
+
+# RVIZ PLUGINS --------------
+
+# catkin dependencies
+catkin_package(
+  CATKIN_DEPENDS rospy actionlib visualization_msgs move_base_msgs nav_msgs rviz tf map_server qt_build
+)
+
+include_directories(
+  ${catkin_INCLUDE_DIRS}
+)
+
+link_directories(
+  ${catkin_LIBRARY_DIRS}
+)
+
+## This plugin includes Qt widgets, so we must include Qt like so:
+find_package(Qt5 5.5.1 COMPONENTS Core Gui Widgets REQUIRED)
+#include(${QT_USE_FILE})
+set(QT_LIBRARIES Qt5::Gui Qt5::Widgets)
+
+add_definitions(-DQT_NO_KEYWORDS)
+
+## Here we specify which header files need to be run through "moc",
+## Qt's meta-object compiler.
+qt5_wrap_cpp(MOC_FILES
+  src/plugins/navigation/navigation_panel.h
+  src/plugins/navigation/multi_map_pose_tool.h
+)
+
+set(SOURCE_FILES
+  src/plugins/navigation/navigation_panel.cpp
+  src/plugins/navigation/multi_map_pose_tool.cpp
+  ${MOC_FILES}
+)
+
+add_library(${PROJECT_NAME} ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} ${QT_LIBRARIES} ${catkin_LIBRARIES})
+
+
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -23,7 +64,6 @@ generate_messages(DEPENDENCIES actionlib_msgs geometry_msgs)
 #######################################
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
 #   FILES
 #   Message1.msg
 #   Message2.msg
