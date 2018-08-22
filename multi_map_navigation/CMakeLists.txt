@@ -16,17 +16,22 @@ generate_messages(DEPENDENCIES actionlib_msgs geometry_msgs)
 # RVIZ PLUGINS --------------
 
 # catkin dependencies
-catkin_package(
-  CATKIN_DEPENDS rospy actionlib visualization_msgs move_base_msgs nav_msgs rviz tf map_server qt_build multi_level_map_msgs
+#catkin_package(
+#  CATKIN_DEPENDS qt_build 
+#)
+find_package(
+  catkin REQUIRED COMPONENTS rospy actionlib visualization_msgs move_base_msgs nav_msgs rviz tf map_server qt_build multi_level_map_msgs
 )
 
 include_directories(
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
 link_directories(
   ${catkin_LIBRARY_DIRS}
 )
+
 
 ## This plugin includes Qt widgets, so we must include Qt like so:
 find_package(Qt5 5.5.1 COMPONENTS Core Gui Widgets REQUIRED)
@@ -50,6 +55,8 @@ set(SOURCE_FILES
 
 add_library(${PROJECT_NAME} ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} ${QT_LIBRARIES} ${catkin_LIBRARIES})
+add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_generate_messages_cpp)
+add_dependencies(${PROJECT_NAME} multi_level_map_msgs_generate_messages_cpp)
 
 
 
