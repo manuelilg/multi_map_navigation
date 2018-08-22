@@ -17,7 +17,7 @@ generate_messages(DEPENDENCIES actionlib_msgs geometry_msgs)
 
 # catkin dependencies
 catkin_package(
-  CATKIN_DEPENDS rospy actionlib visualization_msgs move_base_msgs nav_msgs rviz tf map_server qt_build
+  CATKIN_DEPENDS rospy actionlib visualization_msgs move_base_msgs nav_msgs rviz tf map_server qt_build multi_level_map_msgs
 )
 
 include_directories(
