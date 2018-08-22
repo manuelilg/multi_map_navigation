@@ -114,7 +114,7 @@ class MultiMapNavigationDataManager(object):
         self.ready = True
 
         # self.secondary_map_publisher = rospy.Publisher("secondary_map", OccupancyGrid, latch=True)
-        # self.set_map_service = rospy.Service('~set_map', SetMap, self.set_map)
+        self.set_map_service = rospy.Service('~set_map', SetMap, self.set_map)
         # self.set_secondary_map_service = rospy.Service('~set_secondary_map', SetMap, self.set_secondary_map)
 
         rospy.Subscriber("/rviz/mux_control", String, self.namespace_cb)

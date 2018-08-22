@@ -81,7 +81,7 @@ namespace rviz
   {
 
 //    list_map_client = this->rosNode->serviceClient<multi_level_map_msgs::MultiLevelMapData>("/" + currNamespace.data + "/multi_map_navigation/list_maps"); // Note: this list shouldn't change during the GUI runtime
-    ros::Subscriber sub = this->rosNode->subscribe("map_metadata", 1, &Navigator::map_metadata_cb, this);
+    map_metadata_sub = this->rosNode->subscribe("/map_metadata", 10, &Navigator::map_metadata_cb, this);
     set_map_client = this->rosNode->serviceClient<multi_map_navigation::SetMap>("/" + currNamespace.data + "/multi_map_navigation/set_map");    
   }
 
@@ -97,6 +97,7 @@ namespace rviz
 
   void Navigator::setupActionlibClient()
   {
+    ROS_INFO("setupActionlibClient()");
     goalClient = new Client("/" + this->currNamespace.data + MOVE_GOAL_SERVER_NAME, true);
 
     while(!goalClient->waitForServer(ros::Duration(2.0))) {
@@ -125,10 +126,11 @@ namespace rviz
     ROS_INFO("loadMapComboBox()");
     map_combo_box_->clear();
 
-    while(maps.size() == 0)
+    while(maps.size() == 0 && ros::ok())
     {
         ros::spinOnce();
         ros::Duration(1).sleep();
+        ROS_INFO("Waiting for Map Metadata");
     }
 
 
@@ -289,11 +291,13 @@ namespace rviz
     goal.goal_map = goalLocation->child(3)->child(0)->data(0, Qt::DisplayRole).toString().toStdString();
 
     ROS_INFO("Sending goal");
-    
+
     std_msgs::Bool cancel;
-    cancel.data = false; 
+    cancel.data = false;
+    ROS_INFO("cancle old goals");
     cancel_goal_pub.publish(cancel);
 
+    ROS_INFO("send new goal");
     goalClient->sendGoal(goal);
     // goalClient.waitForResult();
   }
@@ -509,16 +513,20 @@ namespace rviz
 //  	mux_control_pub.publish(currNamespace);
 
     // Restart current map subscriber
-    current_map_name_sub.shutdown();
-    current_map_name_sub = this->rosNode->subscribe<std_msgs::String>("/" + currNamespace.data + MAP_NAME_TOPIC, 2, &Navigator::map_name_cb, this);
+//    current_map_name_sub.shutdown();
+//    current_map_name_sub = this->rosNode->subscribe<std_msgs::String>("/" + currNamespace.data + MAP_NAME_TOPIC, 2, &Navigator::map_name_cb, this);
+//    current_map_name_sub = this->rosNode->subscribe<std_msgs::String>(MAP_NAME_TOPIC, 2, &Navigator::map_name_cb, this);
 
     cancel_goal_pub.shutdown();
-    cancel_goal_pub = this->rosNode->advertise<std_msgs::Bool>("/" + currNamespace.data + "/cancel_all_goals", 2);
+//    cancel_goal_pub = this->rosNode->advertise<std_msgs::Bool>("/" + currNamespace.data + "/cancel_all_goals", 2);
+    cancel_goal_pub = this->rosNode->advertise<std_msgs::Bool>("/cancel_all_goals", 2);
 
     set_map_client.shutdown();
-    set_map_client = this->rosNode->serviceClient<multi_map_navigation::SetMap>("/" + currNamespace.data + "/multi_map_navigation/set_map");    
+//    set_map_client = this->rosNode->serviceClient<multi_map_navigation::SetMap>("/" + currNamespace.data + "/multi_map_navigation/set_map");
+    set_map_client = this->rosNode->serviceClient<multi_map_navigation::SetMap>("/multi_map_navigation/set_map");
 
     setupActionlibClient();
+    ROS_INFO("setNamespace() end");
   }
 
   void Navigator::setupMainGuiPanel()

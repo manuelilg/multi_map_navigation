@@ -6,7 +6,7 @@
       Navigation Panel: Multi-map Goal Manager
     </description>
   </class>
-<!--
+
   <class name="rviz/MultiMapPoseTool"
          type="rviz::MultiMapPoseTool"
          base_class_type="rviz::Tool">
@@ -14,7 +14,7 @@
       2D Pose estimate tool in multi-map environments
     </description>
   </class>
-
+<!--
   <class name="rviz/MapManager"
          type="rviz::MapManager"
          base_class_type="rviz::Panel">
