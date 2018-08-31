@@ -1,0 +1,17 @@
+maps:
+  level1:
+    yaml: package://multi_map_navigation/maps/buchs/level1/level1.yaml
+    origin: [0, 0, 0, 0, 0, 0]
+    data_directory: package://multi_map_navigation/maps/buchs/level1/
+  level2:
+    yaml: package://multi_map_navigation/maps/buchs/level2/level2.yaml
+    origin: [8.87, 27.6, 3, 0, 0, 1.57]
+    data_directory: package://multi_map_navigation/maps/buchs/level2/
+links:
+  - from_point:
+      level_id: level1
+      point: [8.87,27.6,0]
+    to_point:
+      level_id: level2
+      point: [8.87,27.6,3]
+#      point: [-0.65,-0.055,3]

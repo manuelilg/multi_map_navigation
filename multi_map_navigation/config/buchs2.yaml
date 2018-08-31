@@ -11,12 +11,12 @@ wormholes:
        radius: 0.2
        locations:
             - map: level1 
-              position: [7.7, 0.5] # dump coordinates
-              waiting_point: [4.8 0.3 3.147] # x, y, yaw
+              position: [8.87, 27.6] # dump coordinates
+              waiting_point: [8.59 31.37 -1.598] # x, y, yaw
               floor: 0 
               height: 0.0 # not used, but might be useful in the future to calculate the cost of using the elevator
             - map: level2
-              position: [7.7, 0.5] # dump coordinates
-              waiting_point: [4.8 0.3 3.147] # x, y, yaw
+              position: [-0.65, -0.055]
+              waiting_point: [2.98 0.31 -3.09]
               floor: 1
-              height: 2.0
+              height: 3.0
