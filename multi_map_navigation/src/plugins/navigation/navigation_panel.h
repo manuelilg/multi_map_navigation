@@ -109,7 +109,7 @@ namespace rviz
     Client* goalClient;
 
     ros::ServiceClient list_map_client, set_map_client;
-
+    ros::Subscriber map_metadata_sub;
 
     void initialize();
     void setupActionlibClient();
