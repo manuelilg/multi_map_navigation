@@ -600,7 +600,7 @@ class MultiMapNavigationNavigator():
             if (mapname != self.manager.current_map):
                 # Create and publish the new pose for AMCL
                 msg = PoseWithCovarianceStamped()
-                msg.header.frame_id = self.robot_namespace + "/map"
+                msg.header.frame_id = self.robot_namespace + "/level_mux_map"
                 msg.header.stamp = rospy.get_rostime()
 
                 offset_angle = 0.0
@@ -662,7 +662,7 @@ class MultiMapNavigationNavigator():
 
                 goal_pose = PoseStamped()
                 goal_pose.header.stamp = rospy.get_rostime()
-                goal_pose.header.frame_id = self.robot_namespace + "/map"
+                goal_pose.header.frame_id = self.robot_namespace + "/level_mux_map"
                 goal_pose.pose.position.x = waiting_point[0]
                 goal_pose.pose.position.y = waiting_point[1]
                 goal_pose.pose.position.z = 0
@@ -674,7 +674,7 @@ class MultiMapNavigationNavigator():
 
                 getPlanRequest = GetPlanRequest()
                 getPlanRequest.start.header.stamp = rospy.get_rostime()
-                getPlanRequest.start.header.frame_id = self.robot_namespace + "/map"
+                getPlanRequest.start.header.frame_id = self.robot_namespace + "/level_mux_map"
                 robot_pos = self.manager.get_robot_position()
                 getPlanRequest.start.pose.position.x = robot_pos[0]
                 getPlanRequest.start.pose.position.y = robot_pos[1]
