@@ -716,7 +716,7 @@ class MultiMapNavigationNavigator():
 
                 goal_pose = PoseStamped()
                 goal_pose.header.stamp = rospy.get_rostime()
-                goal_pose.header.frame_id = self.robot_namespace + "/map"
+                goal_pose.header.frame_id = self.robot_namespace + "/level_mux_map"
                 goal_pose.pose.position.x = pos[0]
                 goal_pose.pose.position.y = pos[1]
                 goal_pose.pose.position.z = 0
@@ -728,7 +728,7 @@ class MultiMapNavigationNavigator():
 
                 getPlanRequest = GetPlanRequest()
                 getPlanRequest.start.header.stamp = rospy.get_rostime()
-                getPlanRequest.start.header.frame_id = self.robot_namespace + "/map"
+                getPlanRequest.start.header.frame_id = self.robot_namespace + "/level_mux_map"
                 robot_pos = self.manager.get_robot_position()
                 getPlanRequest.start.pose.position.x = robot_pos[0]
                 getPlanRequest.start.pose.position.y = robot_pos[1]
@@ -821,7 +821,7 @@ class MultiMapNavigationNavigator():
 
         msg = MoveBaseGoal()
         msg.target_pose.header.stamp = rospy.get_rostime()
-        msg.target_pose.header.frame_id = self.robot_namespace + "/map"
+        msg.target_pose.header.frame_id = self.robot_namespace + "/level_mux_map"
         msg.target_pose.pose.position.x = waiting_pose[0]
         msg.target_pose.pose.position.y = waiting_pose[1]
         msg.target_pose.pose.position.z = 0
@@ -899,7 +899,7 @@ class MultiMapNavigationNavigator():
 
                         spin = MoveBaseGoal()
                         spin.target_pose.header.stamp = rospy.get_rostime()
-                        spin.target_pose.header.frame_id = self.robot_namespace + "/map"
+                        spin.target_pose.header.frame_id = self.robot_namespace + "/level_mux_map"
                         spin.target_pose.pose.position.x = pos[0]
                         spin.target_pose.pose.position.y = pos[1]
                         spin.target_pose.pose.position.z = 0
