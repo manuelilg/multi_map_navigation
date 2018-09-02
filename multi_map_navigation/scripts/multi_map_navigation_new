@@ -155,8 +155,8 @@ class MultiMapNavigationDataManager(object):
                 #                                rospy.Time(), rospy.Duration(100))
                 # (trans, rot) = self.listener.lookupTransform(self.robot_namespace + '/map',
                 #                                              self.robot_namespace + self.base_frame, rospy.Time())
-                self.listener.waitForTransform(self.robot_namespace + "/map", self.robot_namespace + self.base_frame, rospy.Time(), rospy.Duration(100))
-                (trans, rot) = self.listener.lookupTransform(self.robot_namespace + '/map', self.robot_namespace + self.base_frame, rospy.Time())
+                self.listener.waitForTransform(self.robot_namespace + "/level_mux_map", self.robot_namespace + self.base_frame, rospy.Time(), rospy.Duration(100))
+                (trans, rot) = self.listener.lookupTransform(self.robot_namespace + '/level_mux_map', self.robot_namespace + self.base_frame, rospy.Time())
                 return [trans[0], trans[1]]
             except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException) as ex:
                 rospy.logwarn("Failed to get robot transform")
@@ -171,8 +171,8 @@ class MultiMapNavigationDataManager(object):
                 #                                rospy.Time(), rospy.Duration(100))
                 # (trans, rot) = self.listener.lookupTransform(self.robot_namespace + '/map',
                 #                                              self.robot_namespace + self.base_frame, rospy.Time())
-                self.listener.waitForTransform(self.robot_namespace + "/map", self.robot_namespace + self.base_frame, rospy.Time(), rospy.Duration(100))
-                (trans, rot) = self.listener.lookupTransform(self.robot_namespace + '/map', self.robot_namespace + self.base_frame, rospy.Time())
+                self.listener.waitForTransform(self.robot_namespace + "/level_mux_map", self.robot_namespace + self.base_frame, rospy.Time(), rospy.Duration(100))
+                (trans, rot) = self.listener.lookupTransform(self.robot_namespace + '/level_mux_map', self.robot_namespace + self.base_frame, rospy.Time())
                 return rot
             except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException) as ex:
                 rospy.logwarn("Failed to get robot transform")
@@ -649,7 +649,7 @@ class MultiMapNavigationNavigator():
                 # except:
                 #     rospy.logerr("Could not re-initialize AMCL")
 
-                # self.pose_pub.publish(msg)
+                self.pose_pub.publish(msg)
 
                 rospy.sleep(5)  # FIXME: come up with an alternative approach to know when AMCL is done
 
