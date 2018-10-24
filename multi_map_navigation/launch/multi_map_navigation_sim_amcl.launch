@@ -27,11 +27,6 @@
   </include>
 
 
-  <include file="$(find lidar_turtlebot_cartographer)/launch/localisation.launch">
-    <arg name="pbstream_file" value="$(find multi_map_navigation)/maps/sim2/level1/level1.pbstream"/>
-    <arg name="configuration_file" value="turtlebot_vlp16_scan_2d_sim_localisation.lua"/>
-  </include>
-<!--
   <include file="$(find turtlebot_navigation)/launch/includes/amcl/amcl.launch.xml">
     <arg name="use_map_topic" value="true"/>
     <arg name="global_frame_id" value="level_mux_map"/>
@@ -39,6 +34,6 @@
     <arg name="initial_pose_y"  default="0.0"/>
     <arg name="initial_pose_a"  default="1.5"/>
   </include>
--->
+
 </launch>
 
